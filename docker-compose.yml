@@ -1,0 +1,31 @@
+#./django-docker/docker-compose.yml
+version: '3.7'
+
+services:
+  db:
+    image: mysql:8
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD= ${MYSQL_ROOT_PASSWORD}
+      - MYSQL_ROOT_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_HOST=''
+    volumes:
+      - /tmp/app/mysqld:/var/run/mysqld
+      - ./db:/var/lib/mysql
+  web:
+    build:
+         context: ./src/genie_project
+         dockerfile: Dockerfile
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - ./src/genie_project/:/opt/src/genie_project
+      - /tmp/app/mysqld:/run/mysqld
+    ports:
+      - 4000:8000
+    env_file:
+      - ./.env
+    depends_on:
+      - db
